@@ -23,8 +23,7 @@ else
 end
 
 
-
-%[xmin ymin width height]. 
+figure,imshow(io)
 
 [s2,v2]=listdlg('Name','Choose Level','PromptString','Select a page for ROI extraction:','SelectionMode','single','ListSize',[170 120],'ListString',pageinfo1); drawnow;
 if ~v, guidata(hObject, handles); return; end
@@ -32,11 +31,14 @@ if ~v, guidata(hObject, handles); return; end
 hratio=I1info(s2).Height/I1info(s).Height;
 wratio=I1info(s2).Width/I1info(s).Width;
 
+rectPos = [100 100 255/wratio 255/hratio]; %[xmin ymin width height]. Ratio for page2 (low resolution) and page 1 (high resolution)
+h = imrect(gca, rectPos);
+roi = wait(h);
+
 roi(2:2:4)=roi(2:2:4)*hratio;
 roi(1:2:3)=roi(1:2:3)*wratio;
 
-figure,imshow(io)
-rectPos = [100 100 255/wratio 255/hratio];
-h = imrect(gca, rectPos);
-%h=imrect;
-roi = wait(h);
+Rows=[roi(2) roi(2)+roi(4)];
+Cols=[roi(1) roi(1)+roi(3)];
+io_roi=imread(fname,'Index',s2,'PixelRegion',{Rows,Cols});
+imagesc(io_roi), axis image;
