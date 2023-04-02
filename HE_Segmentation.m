@@ -67,5 +67,5 @@ for image = 3:size(total_image, 2)
     combined_image = cat(1, combined_image, cell2mat(total_image(image)));
 end
 
-imwrite(combined_image, "binary_mask_1.png");
+imwrite(combined_image, 'binary_mask_1.tif', 'tif');
 
