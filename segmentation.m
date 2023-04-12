@@ -1,4 +1,4 @@
-function binary_mask = segmentation(image)
+function [binary_mask_perim, binary_mask_filled] = segmentation(image)
     
     % segmentaion 
     [stain1, ~, ~] = colour_deconvolution(image, 'HE 2');    
@@ -19,7 +19,10 @@ function binary_mask = segmentation(image)
     % Filling in holes
     BWdfill = imfill(BWsdil,'holes');
     
-    % Binary Mask
-    binary_mask = bwperim(BWdfill);
+    % Binary Mask with Perimeters
+    binary_mask_perim = bwperim(BWdfill);
+
+    % Binary Mask Filled in
+    binary_mask_filled = BWdfill;
 
 end
