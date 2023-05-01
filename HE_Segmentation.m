@@ -1,11 +1,10 @@
 %% H&E Nuclei Segmentation
 % Anthony Khoury, Rylee Faherty, and Tianyao Wei
 
-%% Automatically find the Smallest & Largest Images
-file_name = '213_HIVE_TMA_190.7 H&E_2_003.svs';
-
-output_filename1 = 'binary_mask_perim_7.tif'; % Change me
-output_filename2 = 'binary_mask_filled_7.tif'; % Change me
+% Project Slide Image
+file_name = '213_HIVE_TMA_190.7 H&E_2_003.svs'; % Change me to file the file name of the data
+output_filename1 = 'binary_mask_perim.tif'; % Change me to your desired output file name for the perimeter of the nuceli
+output_filename2 = 'binary_mask_filled.tif'; % Change me to your desired output file name for the filled in nuclei
 
 % Loop through possible pages and return the total sizes to a list
 image_info = imfinfo(file_name);
@@ -28,7 +27,8 @@ step_size = 256;
 % Variable to store entire image
 total_image_perim = [];
 total_image_filled = [];
-index = 1;
+x_index = 1;
+y_index = 1;
 for y = 1:step_size:largest_height    % Loop through height
     binary_perim_row = {};            % Store binary data for one row
     binary_filled_row = {};             % Store binary data for one row
@@ -59,9 +59,11 @@ for y = 1:step_size:largest_height    % Loop through height
         binary_perim_row{end + 1} = binary_mask_perim;
         binary_filled_row{end + 1} = binary_mask_filled;
 
-        index = index + 1;
+        x_index = x_index + 1;
 
     end
+    x_index = 0;
+    y_index = y_index + 1;
     
     combined_perim_image = combine_rows(binary_perim_row);
     combined_filled_image = combine_rows(binary_filled_row);
@@ -79,30 +81,3 @@ total_image_filled = combine_columns(total_image_filled);
 % Output the 
 imwrite(total_image_perim, output_filename1, 'tif');
 imwrite(total_image_filled, output_filename2, 'tif');
-
-
-%% Performance Analysis
-gt_image = imread("Ground Truth Image.tif");
-test_image = imread("binary_mask_filled_7.tif");
-
-TN = sum(test_image(:) == 0 & gt_image(:) == 0);
-TP = sum(test_image(:) == 1 & gt_image(:) == 1);
-FN = sum(test_image(:) == 0 & gt_image(:) == 1);
-FP = sum(test_image(:) == 1 & gt_image(:) == 0);
-
-f1 = TP / (TP + 0.5*(FP + FN));
-precision = TP / (TP + FP);
-specificity = TN / (TN + FP);
-sensitivity = TP / (TP + FN);
-
-% Compute Accuracy
-diff_img = imabsdiff(gt_image, test_image);
-num_pixels = numel(gt_image);
-num_correct = num_pixels - nnz(diff_img);
-accuracy = num_correct / num_pixels * 100;
-
-disp(['F1 score: ', num2str(f1)])
-disp(['Precision: ', num2str(precision)])
-disp(['Specificity: ', num2str(specificity)])
-disp(['Sensitivity: ', num2str(sensitivity)])
-disp(['Accuracy: ', num2str(accuracy)])
